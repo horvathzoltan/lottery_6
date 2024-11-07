@@ -40,7 +40,10 @@ MainWindow::MainWindow(QWidget *parent)
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
     chartView->setParent(ui->tab_2);
-    chartView->setGeometry(ui->tab_2->geometry());
+
+    //chartView->setGeometry(ui->tab_2->geometry());
+
+    chartView->resize(1200,800);
 
     int year, week;
     auto t_txt = Lottery::_settings.yearweek(&year, &week);
@@ -277,7 +280,14 @@ void MainWindow::setUi(const Lottery::RefreshR& m){
     QBarSeries* barseries = new QBarSeries();
     //barseries->setBarWidth(1);
     QBarSet* set0 = new QBarSet("összes");
+    set0->setColor(Qt::darkBlue);
     barseries->append(set0);
+
+    QBarSeries* barseries2 = new QBarSeries();
+    //barseries->setBarWidth(1);
+    QBarSet* set2 = new QBarSet("utolsó");
+    set2->setColor(Qt::magenta);
+    barseries2->append(set2);
 
     QScatterSeries *scatterseries = new QScatterSeries();
     scatterseries->setName("utolsó");
@@ -371,6 +381,9 @@ void MainWindow::setUi(const Lottery::RefreshR& m){
 
         set0->append(x); //bars
 
+        qreal x2 = m.lastOccurences[i];
+        set2->append(x2);
+
         for(int n=0;n<Lottery::Settings::NUMBERS;n++) // lines
         {
             qreal x = (qreal)(i)+.5;
@@ -413,6 +426,7 @@ void MainWindow::setUi(const Lottery::RefreshR& m){
     scatterseries->attachAxis(axisX);
     if(scatterseries2) scatterseries2->attachAxis(axisX);
     barseries->attachAxis(axisX);
+    barseries2->attachAxis(axisX);
 
     axisX->setRange(QString("1"), QString::number(MAX));
     //axisX->setRange(1, MAX);
@@ -440,6 +454,7 @@ void MainWindow::setUi(const Lottery::RefreshR& m){
     scatterseries->attachAxis(axisY);
     if(scatterseries2)scatterseries2->attachAxis(axisY);
     barseries->attachAxis(axisY);
+    barseries2->attachAxis(axisY);
 
     QLinearGradient plotAreaGradient;
     plotAreaGradient.setStart(QPointF(0, 0));
@@ -478,6 +493,8 @@ void MainWindow::setUi(const Lottery::RefreshR& m){
 
 
     chart->addSeries(barseries);
+    chart->addSeries(barseries2);
+
     for(int n=0;n<Lottery::Settings::NUMBERS;n++)
     {
         chart->addSeries(lineseries[n]);
@@ -547,31 +564,33 @@ void MainWindow::setUi(const Lottery::RefreshByWeekR& m){
     int sum_prize=0;
     int sum_n=0;
     QString sum_curr;
-    int h=0;
-    for(auto&i:m.comb)
-    {
-        qreal q = GetFilNum(Lottery::_settings.filter);
-        if(i.num.weight<q) continue;
-        QString txt = '('+QString::number(i.num.weight, 'g', 2)+") ";
-        txt+= i.num.ToString(Lottery::_next.num);
 
-        if(isok){
-            QString curr;
-            int hn;
-            auto v = Lottery::_next.prizeCur(i, &curr, &hn);
-            if(v>0){
-                txt += ' '+QString::number(hn+1)+"-s("+ QString::number(v) + ' ' + curr+')';
-                sum_prize += v;
-                if(sum_curr.isEmpty()) sum_curr = curr;
-                sum_n++;
+    if(m.besthits.isEmpty()){
+        int h=0;
+    for(auto&i:m.comb)
+        {
+            qreal q = GetFilNum(Lottery::_settings.filter);
+            if(i.num.weight<q) continue;
+            QString txt = '('+QString::number(i.num.weight, 'g', 2)+") ";
+            txt+= i.num.ToString(Lottery::_next.num);
+
+            if(isok){
+                QString curr;
+                int hn;
+                auto v = Lottery::_next.prizeCur(i, &curr, &hn);
+                if(v>0){
+                    txt += ' '+QString::number(hn+1)+"-s("+ QString::number(v) + ' ' + curr+')';
+                    sum_prize += v;
+                    if(sum_curr.isEmpty()) sum_curr = curr;
+                    sum_n++;
+                }
+
             }
 
-        }        
-
-        ui->listWidget->addItem(txt);
-        h++;
+            ui->listWidget->addItem(txt);
+            h++;
+        }
     }
-
 
     _all_shuffled_series.clear();
     _all_shuffled_series.append(QPointF(0, 0));
@@ -663,8 +682,8 @@ void MainWindow::setUi(const Lottery::RefreshByWeekR& m){
                 ui->listWidget->addItem(ntxt);
                 //i.
                 for(auto&k:i){
-                    qreal q = GetFilNum(Lottery::_settings.filter);
-                    if(k.numbers.weight<q) continue;
+                   // qreal q = GetFilNum(Lottery::_settings.filter);
+                    //if(k.numbers.weight<q) continue;
 
                     QString mtxt = QString::number(k.ix)+". "+
                         '('+QString::number(k.numbers.weight, 'g', 2)+") "
