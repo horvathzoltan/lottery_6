@@ -44,11 +44,11 @@ public:
             qreal filter = 5;
             int min = 6; //min számok
             int max = 30; //max számok
-            int shuff_max = 900;//250000;//25000;//900; // ennyit generál egyszerre
+            int shuff_max = 1600;//250000;//25000;//900; // ennyit generál egyszerre
             int c_min = 10;
             int c_max = 1000000;
             int K = 6;
-            int ticket_price = 300;
+            int ticket_price = 400;
             QString ticket_curr = "Ft";
             QString url2= "http://www.lottoszamok.net/hatoslotto/";
             QString url = "https://bet.szerencsejatek.hu/cmsfiles/hatos.csv";
